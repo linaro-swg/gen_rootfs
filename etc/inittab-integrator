@@ -1,0 +1,11 @@
+#
+# /etc/inittab
+#
+::sysinit:/etc/init.d/rc.init
+# ttyAM0 Used by integrator/AP
+ttyAM0::askfirst:/bin/sh -sc ". /etc/profile"
+# ttyAMA0 used by Integrator/CP
+ttyAMA0::askfirst:/bin/sh -sc ". /etc/profile"
+::ctrlaltdel:/sbin/poweroff
+::shutdown:/etc/init.d/rc.shutdown
+::restart:/sbin/init
