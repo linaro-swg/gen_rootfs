@@ -12,9 +12,6 @@ ARM_STRIP=${ARM_CC_PREFIX}-strip
 I486_CC_DIR=${CURDIR}/cross-compiler-i486
 I486_CC_PREFIX=i486
 I486_STRIP=${I486_CC_PREFIX}-strip
-BUSYBOXVER=busybox-1.19.3
-#BUSYBOXVER=busybox-1.20.1
-BUSYBOX=${CURDIR}/${BUSYBOXVER}
 STRACEVER=strace-4.7
 STRACE=${CURDIR}/${STRACEVER}
 
@@ -121,16 +118,28 @@ fi
 echo -n "gen_init_cpio ... "
 which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
     echo "ERROR: gen_init_cpio not in PATH=$PATH!"
+    echo "Copy this binary from the Linux build tree."
+    echo "Or set your PATH into the Linux kernel tree, I don't care..."
     echo "ABORTING."
     exit 1
 else
     echo "OK"
 fi
 
+# Clone the busybox git if we don't have it...
+if [ ! -d busybox ] ; then
+    echo "It appears we're missing a busybox git, cloning it."
+    git clone git://busybox.net/busybox.git busybox
+    if [ ! -d busybox ] ; then
+	echo "Failed. ABORTING."
+	exit 1
+    fi
+fi
+
 # Copy the template of static files to be used
 cp filelist.txt filelist-final.txt
 
-
+# Prep dirs
 if [ -d ${STAGEDIR} ] ; then
     echo "Scrathing old ${STAGEDIR}"
     rm -rf ${STAGEDIR}
@@ -139,22 +148,11 @@ if [ -d ${BUILDDIR} ] ; then
     echo "Scrathing old ${BUILDDIR}"
     rm -rf ${BUILDDIR}
 fi
-if [ -d ${BUSYBOX} ] ; then
-    echo "Scrathing old ${BUSYBOX}"
-    rm -rf ${BUSYBOX}
-fi
-tar xvfj ${BUSYBOXVER}.tar.bz2
-if [ ! -d ${BUSYBOX} ] ; then
-    echo "No busybox in ${BUSYBOX}!"
-    exit 1
-fi
 mkdir ${STAGEDIR}
 mkdir ${STAGEDIR}/lib
 mkdir ${STAGEDIR}/sbin
 mkdir ${BUILDDIR}
-#cd ${BUSYBOX}
-#patch -p1 < ${CURDIR}/fbsplash.patch
-#patch -p1 < ${CURDIR}/fbset.patch
+
 # For using the git version
 cd busybox
 make O=${BUILDDIR} defconfig

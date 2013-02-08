@@ -2,8 +2,8 @@
 # /etc/inittab
 #
 ::sysinit:/etc/init.d/rc.init
-# Use serial port
-ttyS0::askfirst:/bin/sh -sc ". /etc/profile"
+# ttyAMA0 used by U300
+ttyAMA0::askfirst:/bin/sh -sc ". /etc/profile"
 ::ctrlaltdel:/sbin/poweroff
 ::shutdown:/etc/init.d/rc.shutdown
 ::restart:/sbin/init
