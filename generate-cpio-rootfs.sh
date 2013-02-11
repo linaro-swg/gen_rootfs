@@ -12,6 +12,9 @@ ARM_STRIP=${ARM_CC_PREFIX}-strip
 I486_CC_DIR=${CURDIR}/cross-compiler-i486
 I486_CC_PREFIX=i486
 I486_STRIP=${I486_CC_PREFIX}-strip
+I586_CC_DIR=${CURDIR}/cross-compiler-i586
+I586_CC_PREFIX=i586
+I586_STRIP=${I586_CC_PREFIX}-strip
 STRACEVER=strace-4.7
 STRACE=${CURDIR}/${STRACEVER}
 
@@ -23,9 +26,21 @@ case $1 in
 	CC_PREFIX=${I486_CC_PREFIX}
 	STRIP=${I486_STRIP}
 	CFLAGS="-march=i486 -mtune=i486 -m32"
-	cp etc/inittab-i486 etc/inittab
+	cp etc/inittab-pc etc/inittab
 	echo "i486" > etc/hostname
 	OUTFILE=${HOME}/rootfs-i486.cpio
+	;;
+    "i586")
+	echo "Building Intel i586 Pentium root filesystem"
+	LIBCBASE=${I586_CC_DIR}
+	CC_DIR=${I586_CC_DIR}
+	CC_PREFIX=${I586_CC_PREFIX}
+	STRIP=${I586_STRIP}
+	# Skip -mtune pentium-mmx for generic Pentium image
+	CFLAGS="-march=i586 -mtune=pentium-mmx -m32"
+	cp etc/inittab-pc etc/inittab
+	echo "i586" > etc/hostname
+	OUTFILE=${HOME}/rootfs-i586.cpio
 	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
