@@ -22,6 +22,7 @@ file /etc/init.d/hwclock etc/init.d/hwclock 755 0 0
 file /etc/init.d/rc.init etc/init.d/rc.init 755 0 0
 file /etc/init.d/telnetd etc/init.d/telnetd 755 0 0
 file /etc/init.d/splash etc/init.d/splash 755 0 0
+file /etc/init.d/ledflash etc/init.d/ledflash 755 0 0
 file /etc/rpc etc/rpc 644 0 0
 file /etc/se.kmap etc/se.kmap 644 0 0
 dir /etc/rc.d 755 0 0
@@ -29,6 +30,7 @@ slink /etc/rc.d/S00_mdev /etc/init.d/mdev 755 0 0
 slink /etc/rc.d/S07_telnetd /etc/init.d/telnetd 755 0 0
 slink /etc/rc.d/S01_hwclock /etc/init.d/hwclock 755 0 0
 slink /etc/rc.d/S01_splash /etc/init.d/splash 755 0 0
+slink /etc/rc.d/S08_ledflash /etc/init.d/ledflash 755 0 0
 dir /etc/network 755 0 0
 file /etc/network/interfaces etc/network/interfaces 644 0 0
 dir /etc/network/if-up.d 755 0 0

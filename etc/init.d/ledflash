@@ -1,0 +1,11 @@
+#!/bin/sh
+
+LEDS=`find /sys/class/leds/ -type l`
+for led in ${LEDS}
+do
+	old=`cat $led/brightness`
+	max=`cat $led/max_brightness`
+	echo $max > $led/brightness
+	sleep 0.1
+	echo $old > $led/brightness
+done
