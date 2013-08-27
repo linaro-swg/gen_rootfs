@@ -21,6 +21,7 @@ STRACE=${CURDIR}/${STRACEVER}
 case $1 in
     "i486")
 	echo "Building Intel i486 root filesystem"
+	export ARCH=i486
 	LIBCBASE=${I486_CC_DIR}
 	CC_DIR=${I486_CC_DIR}
 	CC_PREFIX=${I486_CC_PREFIX}
@@ -32,6 +33,7 @@ case $1 in
 	;;
     "i586")
 	echo "Building Intel i586 Pentium root filesystem"
+	export ARCH=i586
 	LIBCBASE=${I586_CC_DIR}
 	CC_DIR=${I586_CC_DIR}
 	CC_PREFIX=${I586_CC_PREFIX}
@@ -44,6 +46,7 @@ case $1 in
 	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
+	export ARCH=arm
 	# Use ARMv4T base for Integrator rootfs builds
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc/armv4t
 	CC_DIR=${ARM_CC_DIR}
@@ -58,6 +61,7 @@ case $1 in
 	;;
     "msm8660")
 	echo "Building Qualcomm MSM8660 root filesystem"
+	export ARCH=arm
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
@@ -69,6 +73,7 @@ case $1 in
 	;;
     "nhk8815")
 	echo "Building Nomadik NHK8815 root filesystem"
+	export ARCH=arm
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
@@ -80,6 +85,7 @@ case $1 in
 	;;
     "u300")
 	echo "Building ST-Ericsson U300 root filesystem"
+	export ARCH=arm
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
@@ -91,17 +97,19 @@ case $1 in
 	;;
     "ux500")
 	echo "Building ST-Ericsson Ux500 root filesystem"
+	export ARCH=arm
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
 	STRIP=${ARM_STRIP}
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
+	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a9"
 	cp etc/inittab-ux500 etc/inittab
 	echo "Ux500" > etc/hostname
 	OUTFILE=${HOME}/rootfs-ux500.cpio
 	;;
     "versatile")
 	echo "Building ARM Versatile root filesystem"
+	export ARCH=arm
 	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
@@ -172,6 +180,8 @@ mkdir ${BUILDDIR}
 cd busybox
 make O=${BUILDDIR} defconfig
 echo "Configuring cross compiler etc..."
+# Comment in this line to create a statically linked busybox
+# sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
