@@ -4,10 +4,12 @@ echo "Generator for a simple initramfs root filesystem for some ARM targets"
 CURDIR=`pwd`
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
-ARM_CC_DIR=${CURDIR}/arm-2010q1
+#ARM_CC_DIR=${CURDIR}/arm-2010q1
 #ARM_CC_DIR=${CURDIR}/gcc-linaro-arm-linux-gnueabihf-2012.05-20120523_linux
-ARM_CC_PREFIX=arm-none-linux-gnueabi
+ARM_CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+#ARM_CC_PREFIX=arm-none-linux-gnueabi
 #ARM_CC_PREFIX=arm-linux-gnueabi
+ARM_CC_PREFIX=arm-linux-gnueabihf
 ARM_STRIP=${ARM_CC_PREFIX}-strip
 I486_CC_DIR=${CURDIR}/cross-compiler-i486
 I486_CC_PREFIX=i486
@@ -17,6 +19,29 @@ I586_CC_PREFIX=i586
 I586_STRIP=${I586_CC_PREFIX}-strip
 STRACEVER=strace-4.7
 STRACE=${CURDIR}/${STRACEVER}
+
+# Helper function to copy one level of files and then one level
+# of links from a directory to another directory.
+function clone_dir()
+{
+    SRCDIR=$1
+    DSTDIR=$2
+    FILES=`find ${SRCDIR} -maxdepth 1 -type f`
+    for file in ${FILES} ; do
+	BASE=`basename $file`
+	cp $file ${DSTDIR}/${BASE}
+	# ${STRIP} -s ${DSTDIR}/${BASE}
+    done;
+    # Clone links from the toolchain binary library dir
+    LINKS=`find ${SRCDIR} -maxdepth 1 -type l`
+    cd ${DSTDIR}
+    for file in ${LINKS} ; do
+	BASE=`basename $file`
+	TARGET=`readlink $file`
+	ln -s ${TARGET} ${BASE}
+    done;
+    cd ${CURDIR}
+}
 
 case $1 in
     "i486")
@@ -181,7 +206,7 @@ cd busybox
 make O=${BUILDDIR} defconfig
 echo "Configuring cross compiler etc..."
 # Comment in this line to create a statically linked busybox
-# sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
+#sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
@@ -190,32 +215,18 @@ make O=${BUILDDIR}
 make O=${BUILDDIR} install
 cd ${CURDIR}
 
-# Add all links
-#for i in `cat ${BUILDDIR}/busybox.links` ; do
-#    echo "slink $i /bin/busybox 755 0 0" >> filelist-final.txt
-#done;
-# Extract toolchain binaries to stagedir
-#SBINFILES=`find ${LIBCBASE}/sbin -maxdepth 1 -type f`
-#for file in ${SBINFILES} ; do
-#    BASE=`basename $file`
-#    cp $file ${STAGEDIR}/sbin/${BASE}
-#    ${STRIP} -s ${STAGEDIR}/sbin/${BASE}
-#    echo "file /sbin/${BASE} ${STAGEDIR}/sbin/${BASE} 755 0 0" >> filelist-final.txt
-#done;
-LIBFILES=`find ${LIBCBASE}/lib -maxdepth 1 -type f`
-for file in ${LIBFILES} ; do
-    BASE=`basename $file`
-    cp $file ${STAGEDIR}/lib/${BASE}
-    ${STRIP} -s ${STAGEDIR}/lib/${BASE}
-    # echo "file /lib/${BASE} ${STAGEDIR}/lib/${BASE} 755 0 0" >> filelist-final.txt
-done;
-# Extract links from the toolchain binary dir
-LIBLINKS=`find ${LIBCBASE}/lib -maxdepth 1 -type l`
-for file in ${LIBLINKS} ; do
-    BASE=`basename $file`
-    TARGET=`readlink $file`
-    echo "slink /lib/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
-done;
+# First the flat library where arch-independent stuff will
+# end up
+clone_dir ${LIBCBASE}/lib ${STAGEDIR}/lib
+
+# The C library may be in a per-arch subdir (multiarch)
+# OR it may not...
+if [ -d ${LIBCBASE}/lib/${ARM_CC_PREFIX} ] ; then
+    mkdir -p ${STAGEDIR}/lib/${ARM_CC_PREFIX}
+    echo "dir /lib/${ARM_CC_PREFIX} 755 0 0" >> filelist-final.txt
+    clone_dir ${LIBCBASE}/lib/${ARM_CC_PREFIX} ${STAGEDIR}/lib/${ARM_CC_PREFIX}
+fi
+
 # Add files by searching stage directory
 BINFILES=`find ${STAGEDIR}/bin -maxdepth 1 -type f`
 for file in ${BINFILES} ; do
@@ -232,6 +243,29 @@ for file in ${LIBFILES} ; do
     BASE=`basename $file`
     echo "file /lib/${BASE} $file 755 0 0" >> filelist-final.txt
 done;
+LIBLINKS=`find ${STAGEDIR}/lib -maxdepth 1 -type l`
+for file in ${LIBLINKS} ; do
+    BASE=`basename $file`
+    TARGET=`readlink $file`
+    echo "slink /lib/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+done;
+
+# Add multiarch libarary dir
+if [ -d ${STAGEDIR}/lib/${ARM_CC_PREFIX} ] ; then
+echo "dir /lib/${ARM_CC_PREFIX} 755 0 0" >> filelist-final.txt
+CLIBFILES=`find ${STAGEDIR}/lib/${ARM_CC_PREFIX} -maxdepth 1 -type f`
+for file in ${CLIBFILES} ; do
+    BASE=`basename $file`
+    echo "file /lib/${ARM_CC_PREFIX}/${BASE} $file 755 0 0" >> filelist-final.txt
+done;
+CLIBLINKS=`find ${STAGEDIR}/lib/${ARM_CC_PREFIX} -maxdepth 1 -type l`
+for file in ${CLIBLINKS} ; do
+    BASE=`basename $file`
+    TARGET=`readlink $file`
+    echo "slink /lib/${ARM_CC_PREFIX}/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+done;
+fi
+
 # Add links by searching stage directory
 LINKSBIN=`find ${STAGEDIR}/bin -maxdepth 1 -type l`
 for file in ${LINKSBIN} ; do
