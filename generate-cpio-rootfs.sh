@@ -91,7 +91,7 @@ case $1 in
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
 	STRIP=${ARM_STRIP}
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
+	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv7"
 	cp etc/inittab-msm8660 etc/inittab
 	echo "Ux500" > etc/hostname
 	OUTFILE=${HOME}/rootfs-msm8660.cpio
