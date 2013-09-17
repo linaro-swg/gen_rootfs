@@ -69,6 +69,19 @@ case $1 in
 	echo "i586" > etc/hostname
 	OUTFILE=${HOME}/rootfs-i586.cpio
 	;;
+    "h3600")
+	echo "Building Integrator ARMv4 root filesystem"
+	export ARCH=arm
+	# Use ARMv4 base for SA1100 rootfs builds
+	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc/armv4
+	CC_DIR=${ARM_CC_DIR}
+	CC_PREFIX=${ARM_CC_PREFIX}
+	STRIP=${ARM_STRIP}
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -march=armv4"
+	cp etc/inittab-integrator etc/inittab
+	echo "integrator" > etc/hostname
+	OUTFILE=${HOME}/rootfs-h3600.cpio
+	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
