@@ -78,12 +78,15 @@ case $1 in
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
 	# Use ARMv4T base for Integrator rootfs builds
-	CC_DIR=/var/linus/cross-compiler-armv4tl
-	CC_PREFIX=armv4tl
+	#CC_PREFIX=armv4tl
+	#CC_DIR=/var/linus/cross-compiler-armv4tl
+	CC_PREFIX=armv4l
+	CC_DIR=/var/linus/cross-compiler-armv4l
 	LIBCBASE=${CC_DIR}
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
+	#CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=arm926ej-s"
 	cp etc/inittab-integrator etc/inittab
 	echo "integrator" > etc/hostname
 	OUTFILE=${HOME}/rootfs-integrator.cpio
@@ -93,8 +96,8 @@ case $1 in
     "msm8660")
 	echo "Building Qualcomm MSM8660 root filesystem"
 	export ARCH=arm
-	CC_DIR=/var/linus/arm-2010q1
 	CC_PREFIX=arm-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
@@ -106,8 +109,8 @@ case $1 in
     "nhk8815")
 	echo "Building Nomadik NHK8815 root filesystem"
 	export ARCH=arm
-	CC_DIR=/var/linus/arm-2010q1
 	CC_PREFIX=arm-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
@@ -119,8 +122,8 @@ case $1 in
     "u300")
 	echo "Building ST-Ericsson U300 root filesystem"
 	export ARCH=arm
-	CC_DIR=/var/linus/arm-2010q1
 	CC_PREFIX=arm-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
@@ -132,8 +135,8 @@ case $1 in
     "ux500")
 	echo "Building ST-Ericsson Ux500 root filesystem"
 	export ARCH=arm
-	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
 	CC_PREFIX=arm-linux-gnueabihf
+	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
@@ -145,8 +148,8 @@ case $1 in
     "versatile")
 	echo "Building ARM Versatile root filesystem"
 	export ARCH=arm
-	CC_DIR=/var/linus/arm-2010q1
 	CC_PREFIX=arm-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
