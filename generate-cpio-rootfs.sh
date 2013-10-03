@@ -5,24 +5,6 @@ CURDIR=`pwd`
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
 
-# Configure everything here
-#ARM_CC_DIR=/var/linus/arm-2010q1
-#ARM_CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
-#ARM_CC_DIR=/var/linus/cross-compiler-armv4l
-ARM_CC_DIR=/var/linus/cross-compiler-armv4tl
-#ARM_CC_PREFIX=arm-none-linux-gnueabi
-#ARM_CC_PREFIX=arm-linux-gnueabi
-#ARM_CC_PREFIX=arm-linux-gnueabihf
-#ARM_CC_PREFIX=armv4l
-ARM_CC_PREFIX=armv4tl
-
-ARM_STRIP=${ARM_CC_PREFIX}-strip
-I486_CC_DIR=${CURDIR}/cross-compiler-i486
-I486_CC_PREFIX=i486
-I486_STRIP=${I486_CC_PREFIX}-strip
-I586_CC_DIR=${CURDIR}/cross-compiler-i586
-I586_CC_PREFIX=i586
-I586_STRIP=${I586_CC_PREFIX}-strip
 STRACEVER=strace-4.7
 STRACE=${CURDIR}/${STRACEVER}
 
@@ -53,10 +35,11 @@ case $1 in
     "i486")
 	echo "Building Intel i486 root filesystem"
 	export ARCH=i486
-	LIBCBASE=${I486_CC_DIR}
-	CC_DIR=${I486_CC_DIR}
-	CC_PREFIX=${I486_CC_PREFIX}
-	STRIP=${I486_STRIP}
+	CC_PREFIX=i486
+	CC_DIR=/var/linus/cross-compiler-i486
+	LIBCBASE=${CC_DIR}
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-march=i486 -mtune=i486 -m32"
 	cp etc/inittab-pc etc/inittab
 	echo "i486" > etc/hostname
@@ -65,10 +48,11 @@ case $1 in
     "i586")
 	echo "Building Intel i586 Pentium root filesystem"
 	export ARCH=i586
-	LIBCBASE=${I586_CC_DIR}
-	CC_DIR=${I586_CC_DIR}
-	CC_PREFIX=${I586_CC_PREFIX}
-	STRIP=${I586_STRIP}
+	CC_PREFIX=i586
+	CC_DIR=/var/linus/cross-compiler-i586
+	LIBCBASE=${CC_DIR}
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	# Skip -mtune pentium-mmx for generic Pentium image
 	CFLAGS="-march=i586 -mtune=pentium-mmx -m32"
 	cp etc/inittab-pc etc/inittab
@@ -80,10 +64,11 @@ case $1 in
 	export ARCH=arm
 	# Use ARMv4l base for SA1100 rootfs builds
 	# This is the convention of Rob Landley's binaries
-	LIBCBASE=${ARM_CC_DIR}
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_PREFIX=armv4l
+	CC_DIR=/var/linus/cross-compiler-armv4l
+	LIBCBASE=${CC_DIR}
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=strongarm1100"
 	cp etc/inittab-sa1100 etc/inittab
 	echo "h3600" > etc/hostname
@@ -93,10 +78,11 @@ case $1 in
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
 	# Use ARMv4T base for Integrator rootfs builds
-	LIBCBASE=${ARM_CC_DIR}
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/cross-compiler-armv4tl
+	CC_PREFIX=armv4tl
+	LIBCBASE=${CC_DIR}
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
 	cp etc/inittab-integrator etc/inittab
 	echo "integrator" > etc/hostname
@@ -107,10 +93,11 @@ case $1 in
     "msm8660")
 	echo "Building Qualcomm MSM8660 root filesystem"
 	export ARCH=arm
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/arm-2010q1
+	CC_PREFIX=arm-linux-gnueabi
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv7"
 	cp etc/inittab-msm8660 etc/inittab
 	echo "Ux500" > etc/hostname
@@ -119,10 +106,11 @@ case $1 in
     "nhk8815")
 	echo "Building Nomadik NHK8815 root filesystem"
 	export ARCH=arm
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/arm-2010q1
+	CC_PREFIX=arm-linux-gnueabi
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-nhk8815 etc/inittab
 	echo "NHK8815" > etc/hostname
@@ -131,10 +119,11 @@ case $1 in
     "u300")
 	echo "Building ST-Ericsson U300 root filesystem"
 	export ARCH=arm
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/arm-2010q1
+	CC_PREFIX=arm-linux-gnueabi
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-u300 etc/inittab
 	echo "U300" > etc/hostname
@@ -143,10 +132,11 @@ case $1 in
     "ux500")
 	echo "Building ST-Ericsson Ux500 root filesystem"
 	export ARCH=arm
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+	CC_PREFIX=arm-linux-gnueabihf
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a9"
 	cp etc/inittab-ux500 etc/inittab
 	echo "Ux500" > etc/hostname
@@ -155,10 +145,11 @@ case $1 in
     "versatile")
 	echo "Building ARM Versatile root filesystem"
 	export ARCH=arm
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc
-	CC_DIR=${ARM_CC_DIR}
-	CC_PREFIX=${ARM_CC_PREFIX}
-	STRIP=${ARM_STRIP}
+	CC_DIR=/var/linus/arm-2010q1
+	CC_PREFIX=arm-linux-gnueabi
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-versatile etc/inittab
 	echo "Versatile" > etc/hostname
@@ -169,6 +160,10 @@ case $1 in
 	exit 1
 	;;
 esac
+
+# Define more tools
+STRIP=${CC_PREFIX}-strip
+
 echo "OUTFILE = ${OUTFILE}"
 
 echo "Check prerequisites..."
@@ -241,10 +236,10 @@ clone_dir ${LIBCBASE}/lib ${STAGEDIR}/lib
 
 # The C library may be in a per-arch subdir (multiarch)
 # OR it may not...
-if [ -d ${LIBCBASE}/lib/${ARM_CC_PREFIX} ] ; then
-    mkdir -p ${STAGEDIR}/lib/${ARM_CC_PREFIX}
-    echo "dir /lib/${ARM_CC_PREFIX} 755 0 0" >> filelist-final.txt
-    clone_dir ${LIBCBASE}/lib/${ARM_CC_PREFIX} ${STAGEDIR}/lib/${ARM_CC_PREFIX}
+if [ -d ${LIBCBASE}/lib/${CC_PREFIX} ] ; then
+    mkdir -p ${STAGEDIR}/lib/${CC_PREFIX}
+    echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-final.txt
+    clone_dir ${LIBCBASE}/lib/${CC_PREFIX} ${STAGEDIR}/lib/${CC_PREFIX}
 fi
 
 # Add files by searching stage directory
@@ -271,18 +266,18 @@ for file in ${LIBLINKS} ; do
 done;
 
 # Add multiarch libarary dir
-if [ -d ${STAGEDIR}/lib/${ARM_CC_PREFIX} ] ; then
-echo "dir /lib/${ARM_CC_PREFIX} 755 0 0" >> filelist-final.txt
-CLIBFILES=`find ${STAGEDIR}/lib/${ARM_CC_PREFIX} -maxdepth 1 -type f`
+if [ -d ${STAGEDIR}/lib/${CC_PREFIX} ] ; then
+echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-final.txt
+CLIBFILES=`find ${STAGEDIR}/lib/${CC_PREFIX} -maxdepth 1 -type f`
 for file in ${CLIBFILES} ; do
     BASE=`basename $file`
-    echo "file /lib/${ARM_CC_PREFIX}/${BASE} $file 755 0 0" >> filelist-final.txt
+    echo "file /lib/${CC_PREFIX}/${BASE} $file 755 0 0" >> filelist-final.txt
 done;
-CLIBLINKS=`find ${STAGEDIR}/lib/${ARM_CC_PREFIX} -maxdepth 1 -type l`
+CLIBLINKS=`find ${STAGEDIR}/lib/${CC_PREFIX} -maxdepth 1 -type l`
 for file in ${CLIBLINKS} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /lib/${ARM_CC_PREFIX}/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /lib/${CC_PREFIX}/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
 done;
 fi
 
