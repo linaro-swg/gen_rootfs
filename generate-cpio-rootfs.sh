@@ -4,12 +4,18 @@ echo "Generator for a simple initramfs root filesystem for some ARM targets"
 CURDIR=`pwd`
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
-#ARM_CC_DIR=${CURDIR}/arm-2010q1
-#ARM_CC_DIR=${CURDIR}/gcc-linaro-arm-linux-gnueabihf-2012.05-20120523_linux
-ARM_CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+
+# Configure everything here
+#ARM_CC_DIR=/var/linus/arm-2010q1
+#ARM_CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+#ARM_CC_DIR=/var/linus/cross-compiler-armv4l
+ARM_CC_DIR=/var/linus/cross-compiler-armv4tl
 #ARM_CC_PREFIX=arm-none-linux-gnueabi
 #ARM_CC_PREFIX=arm-linux-gnueabi
-ARM_CC_PREFIX=arm-linux-gnueabihf
+#ARM_CC_PREFIX=arm-linux-gnueabihf
+#ARM_CC_PREFIX=armv4l
+ARM_CC_PREFIX=armv4tl
+
 ARM_STRIP=${ARM_CC_PREFIX}-strip
 I486_CC_DIR=${CURDIR}/cross-compiler-i486
 I486_CC_PREFIX=i486
@@ -70,23 +76,24 @@ case $1 in
 	OUTFILE=${HOME}/rootfs-i586.cpio
 	;;
     "h3600")
-	echo "Building Integrator ARMv4 root filesystem"
+	echo "Building SA110 Compaq h3600 ARMv4 root filesystem"
 	export ARCH=arm
-	# Use ARMv4 base for SA1100 rootfs builds
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc/armv4
+	# Use ARMv4l base for SA1100 rootfs builds
+	# This is the convention of Rob Landley's binaries
+	LIBCBASE=${ARM_CC_DIR}
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
 	STRIP=${ARM_STRIP}
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -march=armv4"
-	cp etc/inittab-integrator etc/inittab
-	echo "integrator" > etc/hostname
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=strongarm1100"
+	cp etc/inittab-sa1100 etc/inittab
+	echo "h3600" > etc/hostname
 	OUTFILE=${HOME}/rootfs-h3600.cpio
 	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
 	# Use ARMv4T base for Integrator rootfs builds
-	LIBCBASE=${ARM_CC_DIR}/${ARM_CC_PREFIX}/libc/armv4t
+	LIBCBASE=${ARM_CC_DIR}
 	CC_DIR=${ARM_CC_DIR}
 	CC_PREFIX=${ARM_CC_PREFIX}
 	STRIP=${ARM_STRIP}
@@ -158,7 +165,7 @@ case $1 in
 	OUTFILE=${HOME}/rootfs-versatile.cpio
 	;;
     *)
-	echo "Usage: $0 [i486|integrator|msm8660|nhk8815|u300|ux500|versatile]"
+	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|versatile]"
 	exit 1
 	;;
 esac
