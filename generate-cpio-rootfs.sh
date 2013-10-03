@@ -43,7 +43,6 @@ case $1 in
 	CFLAGS="-march=i486 -mtune=i486 -m32"
 	cp etc/inittab-pc etc/inittab
 	echo "i486" > etc/hostname
-	OUTFILE=${HOME}/rootfs-i486.cpio
 	;;
     "i586")
 	echo "Building Intel i586 Pentium root filesystem"
@@ -57,7 +56,6 @@ case $1 in
 	CFLAGS="-march=i586 -mtune=pentium-mmx -m32"
 	cp etc/inittab-pc etc/inittab
 	echo "i586" > etc/hostname
-	OUTFILE=${HOME}/rootfs-i586.cpio
 	;;
     "h3600")
 	echo "Building SA110 Compaq h3600 ARMv4 root filesystem"
@@ -72,7 +70,6 @@ case $1 in
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=strongarm1100"
 	cp etc/inittab-sa1100 etc/inittab
 	echo "h3600" > etc/hostname
-	OUTFILE=${HOME}/rootfs-h3600.cpio
 	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
@@ -86,12 +83,9 @@ case $1 in
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
 	#CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=arm926ej-s"
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=arm920t"
 	cp etc/inittab-integrator etc/inittab
 	echo "integrator" > etc/hostname
-	OUTFILE=${HOME}/rootfs-integrator.cpio
-	# Splash image for VGA console
-	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
 	;;
     "msm8660")
 	echo "Building Qualcomm MSM8660 root filesystem"
@@ -104,7 +98,6 @@ case $1 in
 	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv7"
 	cp etc/inittab-msm8660 etc/inittab
 	echo "Ux500" > etc/hostname
-	OUTFILE=${HOME}/rootfs-msm8660.cpio
 	;;
     "nhk8815")
 	echo "Building Nomadik NHK8815 root filesystem"
@@ -117,7 +110,6 @@ case $1 in
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-nhk8815 etc/inittab
 	echo "NHK8815" > etc/hostname
-	OUTFILE=${HOME}/rootfs-nhk8815.cpio
 	;;
     "u300")
 	echo "Building ST-Ericsson U300 root filesystem"
@@ -130,7 +122,6 @@ case $1 in
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-u300 etc/inittab
 	echo "U300" > etc/hostname
-	OUTFILE=${HOME}/rootfs-u300.cpio
 	;;
     "ux500")
 	echo "Building ST-Ericsson Ux500 root filesystem"
@@ -143,7 +134,6 @@ case $1 in
 	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a9"
 	cp etc/inittab-ux500 etc/inittab
 	echo "Ux500" > etc/hostname
-	OUTFILE=${HOME}/rootfs-ux500.cpio
 	;;
     "versatile")
 	echo "Building ARM Versatile root filesystem"
@@ -156,7 +146,6 @@ case $1 in
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-versatile etc/inittab
 	echo "Versatile" > etc/hostname
-	OUTFILE=${HOME}/rootfs-versatile.cpio
 	;;
     *)
 	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|versatile]"
@@ -166,6 +155,7 @@ esac
 
 # Define more tools
 STRIP=${CC_PREFIX}-strip
+OUTFILE=${HOME}/rootfs-$1.cpio
 
 echo "OUTFILE = ${OUTFILE}"
 
@@ -313,6 +303,34 @@ done;
 echo "Compiling fbtest..."
 ${CC_PREFIX}-gcc ${CFLAGS} -o ${STAGEDIR}/usr/bin/fbtest fbtest/fbtest.c
 echo "file /usr/bin/fbtest ${STAGEDIR}/usr/bin/fbtest 755 0 0" >> filelist-final.txt
+
+# Extra stuff per platform
+case $1 in
+    "i486")
+	;;
+    "i586")
+	;;
+    "h3600")
+	;;
+    "integrator")
+	# Splash image for VGA console
+	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
+	;;
+    "msm8660")
+	;;
+    "nhk8815")
+	;;
+    "u300")
+	;;
+    "ux500")
+	;;
+    "versatile")
+	;;
+    *)
+	echo "Forgot to update special per-platform rules."
+	exit 1
+	;;
+esac
 
 gen_init_cpio filelist-final.txt > ${HOME}/rootfs.cpio
 #rm filelist-final.txt
