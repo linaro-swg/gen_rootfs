@@ -81,7 +81,7 @@ case $1 in
 	#LIBCBASE=${CC_DIR}
 	#CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
 
-	# Works
+	# Works but no framebuffer... (error on mmap)
 	#CC_PREFIX=armv4l
 	#CC_DIR=/var/linus/cross-compiler-armv4l
 	#LIBCBASE=${CC_DIR}
