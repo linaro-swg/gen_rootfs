@@ -74,16 +74,25 @@ case $1 in
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
+
 	# Use ARMv4T base for Integrator rootfs builds
 	#CC_PREFIX=armv4tl
 	#CC_DIR=/var/linus/cross-compiler-armv4tl
-	CC_PREFIX=armv4l
-	CC_DIR=/var/linus/cross-compiler-armv4l
-	LIBCBASE=${CC_DIR}
-	CC_DIR=${CC_DIR}
-	CC_PREFIX=${CC_PREFIX}
+	#LIBCBASE=${CC_DIR}
 	#CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=arm920t"
+
+	# Works
+	#CC_PREFIX=armv4l
+	#CC_DIR=/var/linus/cross-compiler-armv4l
+	#LIBCBASE=${CC_DIR}
+	#CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=arm920t"
+
+	# Code Sourcery
+	CC_PREFIX=arm-none-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc/armv4t
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv4t -mtune=arm9tdmi"
+
 	cp etc/inittab-integrator etc/inittab
 	echo "integrator" > etc/hostname
 	;;
