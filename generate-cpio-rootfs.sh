@@ -99,12 +99,12 @@ case $1 in
     "msm8660")
 	echo "Building Qualcomm MSM8660 root filesystem"
 	export ARCH=arm
-	CC_PREFIX=arm-linux-gnueabi
-	CC_DIR=/var/linus/arm-2010q1
+	CC_PREFIX=arm-linux-gnueabihf
+	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
-	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv7"
+	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a9"
 	cp etc/inittab-msm8660 etc/inittab
 	echo "Ux500" > etc/hostname
 	;;
