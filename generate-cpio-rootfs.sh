@@ -71,6 +71,20 @@ case $1 in
 	cp etc/inittab-sa1100 etc/inittab
 	echo "h3600" > etc/hostname
 	;;
+    "nslu2")
+	echo "Building NSLU2 ARMv4 XScale root filesystem"
+	export ARCH=arm
+	# Use ARMv4l base for XScale rootfs builds
+	# This is the convention of Rob Landley's binaries
+	CC_PREFIX=armv4l
+	CC_DIR=/var/linus/cross-compiler-armv4l
+	LIBCBASE=${CC_DIR}
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=xscale"
+	cp etc/inittab-xscale etc/inittab
+	echo "nslu2" > etc/hostname
+	;;
     "integrator")
 	echo "Building Integrator ARMv4 root filesystem"
 	export ARCH=arm
@@ -147,11 +161,9 @@ case $1 in
     "versatile")
 	echo "Building ARM Versatile root filesystem"
 	export ARCH=arm
-	CC_PREFIX=arm-linux-gnueabi
+	CC_PREFIX=arm-none-linux-gnueabi
 	CC_DIR=/var/linus/arm-2010q1
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-	CC_DIR=${CC_DIR}
-	CC_PREFIX=${CC_PREFIX}
 	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5t -mtune=arm9tdmi"
 	cp etc/inittab-versatile etc/inittab
 	echo "Versatile" > etc/hostname
