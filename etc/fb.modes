@@ -26,3 +26,11 @@ mode "640x480-60-rgb565"
     timings 39722 48 16 33 10 96 2
     rgba 5/0,6/5,5/11,0/0
 endmode
+
+mode "320x240-rgb565"
+    # D: 5.722 MHz, H: 16.256 kHz, V: 64.001 Hz
+    geometry 320 240 320 240 16
+    timings 174757 12 17 10 1 3 3
+    accel false
+    rgba 5/0,6/5,5/11,0/0
+endmode

@@ -72,16 +72,12 @@ case $1 in
 	echo "h3600" > etc/hostname
 	;;
     "nslu2")
-	echo "Building NSLU2 ARMv4 XScale root filesystem"
+	echo "Building NSLU2 ARMv5TE XScale root filesystem"
 	export ARCH=arm
-	# Use ARMv4l base for XScale rootfs builds
-	# This is the convention of Rob Landley's binaries
-	CC_PREFIX=armv4l
-	CC_DIR=/var/linus/cross-compiler-armv4l
-	LIBCBASE=${CC_DIR}
-	CC_DIR=${CC_DIR}
-	CC_PREFIX=${CC_PREFIX}
-	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork -mcpu=xscale"
+	CC_PREFIX=arm-none-linux-gnueabi
+	CC_DIR=/var/linus/arm-2010q1
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CFLAGS="-msoft-float -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -march=armv5te -mtune=xscale"
 	cp etc/inittab-xscale etc/inittab
 	echo "nslu2" > etc/hostname
 	;;
@@ -332,6 +328,10 @@ case $1 in
     "i586")
 	;;
     "h3600")
+	# Splash image for VGA console
+	echo "file /etc/splash-320x240.ppm etc/splash-320x240.ppm 644 0 0" >> filelist-final.txt
+	;;
+    "nslu2")
 	;;
     "integrator")
 	# Splash image for VGA console
@@ -346,6 +346,8 @@ case $1 in
     "ux500")
 	;;
     "versatile")
+	# Splash image for VGA console
+	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
 	;;
     *)
 	echo "Forgot to update special per-platform rules."
