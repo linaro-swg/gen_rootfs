@@ -154,6 +154,18 @@ case $1 in
 	cp etc/inittab-ux500 etc/inittab
 	echo "Ux500" > etc/hostname
 	;;
+    "exynos")
+	echo "Building Samsung Exynos root filesystem"
+	export ARCH=arm
+	CC_PREFIX=arm-linux-gnueabihf
+	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.10_linux
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
+	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
+	cp etc/inittab-exynos etc/inittab
+	echo "Exynos" > etc/hostname
+	;;
     "versatile")
 	echo "Building ARM Versatile root filesystem"
 	export ARCH=arm
@@ -165,7 +177,7 @@ case $1 in
 	echo "Versatile" > etc/hostname
 	;;
     *)
-	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|versatile]"
+	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile]"
 	exit 1
 	;;
 esac
@@ -347,6 +359,8 @@ case $1 in
     "u300")
 	;;
     "ux500")
+	;;
+    "exynos")
 	;;
     "versatile")
 	# Splash image for VGA console
