@@ -176,8 +176,20 @@ case $1 in
 	cp etc/inittab-versatile etc/inittab
 	echo "Versatile" > etc/hostname
 	;;
+    "vexpress")
+	echo "Building Versatile Express root filesystem"
+	export ARCH=arm
+	CC_PREFIX=arm-linux-gnueabihf
+	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.10_linux
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	CC_DIR=${CC_DIR}
+	CC_PREFIX=${CC_PREFIX}
+	CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
+	cp etc/inittab-vexpress etc/inittab
+	echo "Vexpress" > etc/hostname
+	;;
     *)
-	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile]"
+	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile|vexpress]"
 	exit 1
 	;;
 esac
@@ -365,6 +377,8 @@ case $1 in
     "versatile")
 	# Splash image for VGA console
 	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
+	;;
+    "vexpress")
 	;;
     *)
 	echo "Forgot to update special per-platform rules."
