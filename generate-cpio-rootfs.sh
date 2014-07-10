@@ -188,8 +188,18 @@ case $1 in
 	cp etc/inittab-vexpress etc/inittab
 	echo "Vexpress" > etc/hostname
 	;;
+    "fvp-aarch64")
+	echo "Building FVP Aarch64 root filesystem"
+	export ARCH=arm64
+	CC_PREFIX=aarch64-linux-gnu
+	CC_DIR=/home/jens/aarch64-toolchain/gcc-linaro-aarch64-linux-gnu-4.8-2013.11_linux
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	#CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
+	cp etc/inittab-vexpress etc/inittab
+	echo "FVP" > etc/hostname
+	;;
     *)
-	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile|vexpress]"
+	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile|vexpress|fvp-aarch64]"
 	exit 1
 	;;
 esac
@@ -379,6 +389,8 @@ case $1 in
 	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
 	;;
     "vexpress")
+	;;
+    "fvp-aarch64")
 	;;
     *)
 	echo "Forgot to update special per-platform rules."
