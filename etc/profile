@@ -13,3 +13,5 @@ if [ -e "/etc/profile.local" ]; then
 	echo "running /etc/profile.local"
 	. /etc/profile.local
 fi
+
+alias ll='ls -al'

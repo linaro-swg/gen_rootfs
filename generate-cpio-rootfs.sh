@@ -192,7 +192,11 @@ case $1 in
 	echo "Building FVP Aarch64 root filesystem"
 	export ARCH=arm64
 	CC_PREFIX=aarch64-linux-gnu
-	CC_DIR=/home/jens/aarch64-toolchain/gcc-linaro-aarch64-linux-gnu-4.8-2013.11_linux
+	if [ ! -n "${CC_DIR}" ]; then
+		echo "CC_DIR must be set as environment variable before calling this script"
+		exit
+	fi
+	#CC_DIR=/home/jens/aarch64-toolchain/gcc-linaro-aarch64-linux-gnu-4.8-2013.11_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	#CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
 	cp etc/inittab-vexpress etc/inittab
