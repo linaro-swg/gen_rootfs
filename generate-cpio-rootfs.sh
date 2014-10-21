@@ -180,7 +180,11 @@ case $1 in
 	echo "Building Versatile Express root filesystem"
 	export ARCH=arm
 	CC_PREFIX=arm-linux-gnueabihf
-	CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.10_linux
+	if [ ! -n "${CC_DIR}" ]; then
+		echo "CC_DIR must be set as environment variable before calling this script"
+		exit
+	fi
+	#CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.10_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
