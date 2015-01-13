@@ -250,6 +250,10 @@ else
     CCACHE=${CCACHE-ccache }
 fi
 
+echo -n "Check # of CPUs ..."
+_NPROCESSORS_ONLN=`getconf _NPROCESSORS_ONLN`
+echo $_NPROCESSORS_ONLN
+
 echo -n "gen_init_cpio ... "
 which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
     echo "ERROR: gen_init_cpio not in PATH=$PATH!"
@@ -301,7 +305,7 @@ sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.co
 sed -i -e "s/CONFIG_EJECT=y/\# CONFIG_EJECT is not set/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_FEATURE_EJECT_SCSI=y/\# CONFIG_FEATURE_EJECT_SCSI is not set/g" ${BUILDDIR}/.config
 #make O=${BUILDDIR} menuconfig
-make O=${BUILDDIR}
+make -j${_NPROCESSORS_ONLN} O=${BUILDDIR}
 make O=${BUILDDIR} install
 cd ${CURDIR}
 
