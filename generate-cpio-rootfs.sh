@@ -241,6 +241,15 @@ else
     echo "OK"
 fi
 
+echo -n "Check ccache ..."
+which ccache > /dev/null ; if [ ! $? -eq 0 ] ; then
+    echo "No"
+else
+    echo "Yes"
+    # Set $CCACHE to "ccache " only if unset
+    CCACHE=${CCACHE-ccache }
+fi
+
 echo -n "gen_init_cpio ... "
 which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
     echo "ERROR: gen_init_cpio not in PATH=$PATH!"
@@ -285,7 +294,7 @@ make O=${BUILDDIR} defconfig
 echo "Configuring cross compiler etc..."
 # Comment in this line to create a statically linked busybox
 #sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
-sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
+sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CCACHE}${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
 sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
 # Turn off "eject" command, we don't have a CDROM
@@ -374,7 +383,7 @@ for file in ${LINKSUSRSBIN} ; do
 done;
 
 echo "Compiling fbtest..."
-${CC_PREFIX}-gcc ${CFLAGS} -o ${STAGEDIR}/usr/bin/fbtest fbtest/fbtest.c
+${CCACHE}${CC_PREFIX}-gcc ${CFLAGS} -o ${STAGEDIR}/usr/bin/fbtest fbtest/fbtest.c
 echo "file /usr/bin/fbtest ${STAGEDIR}/usr/bin/fbtest 755 0 0" >> filelist-final.txt
 
 # Extra stuff per platform
