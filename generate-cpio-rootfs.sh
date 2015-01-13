@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Usage: generate_cpio_rootfs.sh <platform_name>
+#        generate_cpio_rootfs.sh <platform_name> clean
+#        generate_cpio_rootfs.sh <platform_name> nocpio
 
 echo "Generator for a simple initramfs root filesystem for some ARM targets"
 CURDIR="$(dirname "$(readlink -f "$0")")"
@@ -10,7 +14,7 @@ if [ "$2" = "clean" -o "$2" = "distclean" ]; then
     echo "Cleaning"
     rm -rf ${STAGEDIR} ${BUILDDIR}
     rm -f ${OUTFILE} ${CURDIR}/etc/hostname ${CURDIR}/etc/inittab
-    rm -f ${CURDIR}/filelist-final.txt
+    rm -f ${CURDIR}/filelist-tmp.txt ${CURDIR}/filelist-final.txt
     exit 0
 fi
 if [ "$2" = "distclean" ]; then
@@ -38,7 +42,7 @@ function clone_dir()
     for file in ${LINKS} ; do
 	BASE=`basename $file`
 	TARGET=`readlink $file`
-	ln -s ${TARGET} ${BASE}
+	ln -sf ${TARGET} ${BASE}
     done;
     cd ${CURDIR}
 }
@@ -254,15 +258,17 @@ echo -n "Check # of CPUs ..."
 _NPROCESSORS_ONLN=`getconf _NPROCESSORS_ONLN`
 echo $_NPROCESSORS_ONLN
 
-echo -n "gen_init_cpio ... "
-which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
-    echo "ERROR: gen_init_cpio not in PATH=$PATH!"
-    echo "Copy this binary from the Linux build tree."
-    echo "Or set your PATH into the Linux kernel tree, I don't care..."
-    echo "ABORTING."
-    exit 1
-else
-    echo "OK"
+if [ "$2" != "nocpio" ]; then
+    echo -n "gen_init_cpio ... "
+    which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
+        echo "ERROR: gen_init_cpio not in PATH=$PATH!"
+        echo "Copy this binary from the Linux build tree."
+        echo "Or set your PATH into the Linux kernel tree, I don't care..."
+        echo "ABORTING."
+        exit 1
+    else
+        echo "OK"
+    fi
 fi
 
 # Clone the busybox git if we don't have it...
@@ -276,35 +282,29 @@ if [ ! -d busybox ] ; then
 fi
 
 # Copy the template of static files to be used
-cp filelist.txt filelist-final.txt
+cp filelist.txt filelist-tmp.txt
 
 # Prep dirs
-if [ -d ${STAGEDIR} ] ; then
-    echo "Scrathing old ${STAGEDIR}"
-    rm -rf ${STAGEDIR}
-fi
-if [ -d ${BUILDDIR} ] ; then
-    echo "Scrathing old ${BUILDDIR}"
-    rm -rf ${BUILDDIR}
-fi
-mkdir ${STAGEDIR}
-mkdir ${STAGEDIR}/lib
-mkdir ${STAGEDIR}/sbin
-mkdir ${BUILDDIR}
+mkdir -p ${STAGEDIR}
+mkdir -p ${STAGEDIR}/lib
+mkdir -p ${STAGEDIR}/sbin
+mkdir -p ${BUILDDIR}
 
 # For using the git version
 cd busybox
-make O=${BUILDDIR} defconfig
-echo "Configuring cross compiler etc..."
-# Comment in this line to create a statically linked busybox
-#sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
-sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CCACHE}${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
-sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
-sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
-# Turn off "eject" command, we don't have a CDROM
-sed -i -e "s/CONFIG_EJECT=y/\# CONFIG_EJECT is not set/g" ${BUILDDIR}/.config
-sed -i -e "s/CONFIG_FEATURE_EJECT_SCSI=y/\# CONFIG_FEATURE_EJECT_SCSI is not set/g" ${BUILDDIR}/.config
-#make O=${BUILDDIR} menuconfig
+if [ ! -e ${BUILDDIR}/.config ]; then
+  make O=${BUILDDIR} defconfig
+  echo "Configuring cross compiler etc..."
+  # Comment in this line to create a statically linked busybox
+  #sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
+  sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CCACHE}${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
+  sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
+  sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
+  # Turn off "eject" command, we don't have a CDROM
+  sed -i -e "s/CONFIG_EJECT=y/\# CONFIG_EJECT is not set/g" ${BUILDDIR}/.config
+  sed -i -e "s/CONFIG_FEATURE_EJECT_SCSI=y/\# CONFIG_FEATURE_EJECT_SCSI is not set/g" ${BUILDDIR}/.config
+  #make O=${BUILDDIR} menuconfig
+fi
 make -j${_NPROCESSORS_ONLN} O=${BUILDDIR}
 make O=${BUILDDIR} install
 cd ${CURDIR}
@@ -317,7 +317,7 @@ clone_dir ${LIBCBASE}/lib ${STAGEDIR}/lib
 # OR it may not...
 if [ -d ${LIBCBASE}/lib/${CC_PREFIX} ] ; then
     mkdir -p ${STAGEDIR}/lib/${CC_PREFIX}
-    echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-final.txt
+    echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-tmp.txt
     clone_dir ${LIBCBASE}/lib/${CC_PREFIX} ${STAGEDIR}/lib/${CC_PREFIX}
 fi
 
@@ -325,38 +325,38 @@ fi
 BINFILES=`find ${STAGEDIR}/bin -maxdepth 1 -type f`
 for file in ${BINFILES} ; do
     BASE=`basename $file`
-    echo "file /bin/${BASE} $file 755 0 0" >> filelist-final.txt
+    echo "file /bin/${BASE} $file 755 0 0" >> filelist-tmp.txt
 done;
 SBINFILES=`find ${STAGEDIR}/sbin -maxdepth 1 -type f`
 for file in ${SBINFILES} ; do
     BASE=`basename $file`
-    echo "file /sbin/${BASE} $file 755 0 0" >> filelist-final.txt
+    echo "file /sbin/${BASE} $file 755 0 0" >> filelist-tmp.txt
 done;
 LIBFILES=`find ${STAGEDIR}/lib -maxdepth 1 -type f`
 for file in ${LIBFILES} ; do
     BASE=`basename $file`
-    echo "file /lib/${BASE} $file 755 0 0" >> filelist-final.txt
+    echo "file /lib/${BASE} $file 755 0 0" >> filelist-tmp.txt
 done;
 LIBLINKS=`find ${STAGEDIR}/lib -maxdepth 1 -type l`
 for file in ${LIBLINKS} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /lib/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /lib/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 
 # Add multiarch libarary dir
 if [ -d ${STAGEDIR}/lib/${CC_PREFIX} ] ; then
-echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-final.txt
+echo "dir /lib/${CC_PREFIX} 755 0 0" >> filelist-tmp.txt
 CLIBFILES=`find ${STAGEDIR}/lib/${CC_PREFIX} -maxdepth 1 -type f`
 for file in ${CLIBFILES} ; do
     BASE=`basename $file`
-    echo "file /lib/${CC_PREFIX}/${BASE} $file 755 0 0" >> filelist-final.txt
+    echo "file /lib/${CC_PREFIX}/${BASE} $file 755 0 0" >> filelist-tmp.txt
 done;
 CLIBLINKS=`find ${STAGEDIR}/lib/${CC_PREFIX} -maxdepth 1 -type l`
 for file in ${CLIBLINKS} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /lib/${CC_PREFIX}/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /lib/${CC_PREFIX}/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 fi
 
@@ -365,30 +365,30 @@ LINKSBIN=`find ${STAGEDIR}/bin -maxdepth 1 -type l`
 for file in ${LINKSBIN} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /bin/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /bin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 LINKSSBIN=`find ${STAGEDIR}/sbin -maxdepth 1 -type l`
 for file in ${LINKSSBIN} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 LINKSUSRBIN=`find ${STAGEDIR}/usr/bin -maxdepth 1 -type l`
 for file in ${LINKSUSRBIN} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /usr/bin/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /usr/bin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 LINKSUSRSBIN=`find ${STAGEDIR}/usr/sbin -maxdepth 1 -type l`
 for file in ${LINKSUSRSBIN} ; do
     BASE=`basename $file`
     TARGET=`readlink $file`
-    echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-final.txt
+    echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 
 echo "Compiling fbtest..."
 ${CCACHE}${CC_PREFIX}-gcc ${CFLAGS} -o ${STAGEDIR}/usr/bin/fbtest fbtest/fbtest.c
-echo "file /usr/bin/fbtest ${STAGEDIR}/usr/bin/fbtest 755 0 0" >> filelist-final.txt
+echo "file /usr/bin/fbtest ${STAGEDIR}/usr/bin/fbtest 755 0 0" >> filelist-tmp.txt
 
 # Extra stuff per platform
 case $1 in
@@ -398,13 +398,13 @@ case $1 in
 	;;
     "h3600")
 	# Splash image for VGA console
-	echo "file /etc/splash-320x240.ppm etc/splash-320x240.ppm 644 0 0" >> filelist-final.txt
+	echo "file /etc/splash-320x240.ppm etc/splash-320x240.ppm 644 0 0" >> filelist-tmp.txt
 	;;
     "nslu2")
 	;;
     "integrator")
 	# Splash image for VGA console
-	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
+	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-tmp.txt
 	;;
     "msm8660")
 	;;
@@ -418,7 +418,7 @@ case $1 in
 	;;
     "versatile")
 	# Splash image for VGA console
-	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-final.txt
+	echo "file /etc/splash.ppm etc/splash-640x480-rgba5551.ppm 644 0 0" >> filelist-tmp.txt
 	;;
     "vexpress")
 	;;
@@ -430,9 +430,14 @@ case $1 in
 	;;
 esac
 
-gen_init_cpio filelist-final.txt > ${HOME}/rootfs.cpio
-#rm filelist-final.txt
-if [ -f ${HOME}/rootfs.cpio ] ; then
-    mv ${HOME}/rootfs.cpio ${OUTFILE}
+diff filelist-final.txt filelist-tmp.txt >/dev/null 2>&1 || mv filelist-tmp.txt filelist-final.txt
+
+if [ "$2" != "nocpio" ]; then
+    gen_init_cpio filelist-final.txt > ${HOME}/rootfs.cpio
+    #rm filelist-tmp.txt
+    if [ -f ${HOME}/rootfs.cpio ] ; then
+        mv ${HOME}/rootfs.cpio ${OUTFILE}
+    fi
+    echo "New rootfs ready in ${OUTFILE}"
 fi
-echo "New rootfs ready in ${OUTFILE}"
+
