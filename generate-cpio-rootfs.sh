@@ -1,9 +1,21 @@
 #!/bin/bash
 
 echo "Generator for a simple initramfs root filesystem for some ARM targets"
-CURDIR=`pwd`
+CURDIR="$(dirname "$(readlink -f "$0")")"
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
+OUTFILE=${HOME}/rootfs-$1.cpio
+
+if [ "$2" = "clean" -o "$2" = "distclean" ]; then
+    echo "Cleaning"
+    rm -rf ${STAGEDIR} ${BUILDDIR}
+    rm -f ${OUTFILE} ${CURDIR}/etc/hostname ${CURDIR}/etc/inittab
+    rm -f ${CURDIR}/filelist-final.txt
+    exit 0
+fi
+if [ "$2" = "distclean" ]; then
+    rm -rf ${CURDIR}/busybox
+fi
 
 STRACEVER=strace-4.7
 STRACE=${CURDIR}/${STRACEVER}
@@ -214,7 +226,6 @@ esac
 
 # Define more tools
 STRIP=${CC_PREFIX}-strip
-OUTFILE=${HOME}/rootfs-$1.cpio
 
 echo "OUTFILE = ${OUTFILE}"
 
