@@ -222,6 +222,19 @@ case $1 in
 	cp etc/inittab-vexpress etc/inittab
 	echo "FVP" > etc/hostname
 	;;
+    "hikey")
+	echo "Building HiKey Aarch64 root filesystem"
+	export ARCH=arm64
+	CC_PREFIX=aarch64-linux-gnu
+	if [ ! -n "${CC_DIR}" ]; then
+		echo "CC_DIR must be set as environment variable before calling this script"
+		exit
+        fi
+	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+	cp etc/inittab-vexpress etc/inittab
+	echo "HiKey" > etc/hostname
+
+	;;
     *)
 	echo "Usage: $0 [i486|i586|h3600|integrator|msm8660|nhk8815|u300|ux500|exynos|versatile|vexpress|fvp-aarch64]"
 	exit 1
@@ -423,6 +436,8 @@ case $1 in
     "vexpress")
 	;;
     "fvp-aarch64")
+	;;
+    "hikey")
 	;;
     *)
 	echo "Forgot to update special per-platform rules."
