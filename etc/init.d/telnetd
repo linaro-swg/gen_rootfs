@@ -10,6 +10,10 @@ case "$1" in
 	    echo "Starting telnetd..."
 	    /usr/sbin/telnetd
 	    exit 0
+	elif [ -e /sbin/telnetd ]; then
+	    echo "Starting telnetd..."
+	    /sbin/telnetd
+	    exit 0
 	elif [ -e /sbin/utelnetd ]; then
 	    echo "Starting utelnetd..."
 	    /sbin/utelnetd -d
