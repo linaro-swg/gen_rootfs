@@ -200,7 +200,6 @@ case $1 in
 		echo "CC_DIR must be set as environment variable before calling this script"
 		exit
 	fi
-	#CC_DIR=/var/linus/gcc-linaro-arm-linux-gnueabihf-4.8-2013.10_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
 	CC_DIR=${CC_DIR}
 	CC_PREFIX=${CC_PREFIX}
@@ -216,9 +215,7 @@ case $1 in
 		echo "CC_DIR must be set as environment variable before calling this script"
 		exit
 	fi
-	#CC_DIR=/home/jens/aarch64-toolchain/gcc-linaro-aarch64-linux-gnu-4.8-2013.11_linux
 	LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-	#CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
 	cp etc/inittab-vexpress etc/inittab
 	echo "FVP" > etc/hostname
 	;;
@@ -398,10 +395,6 @@ for file in ${LINKSUSRSBIN} ; do
     TARGET=`readlink $file`
     echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
-
-echo "Compiling fbtest..."
-${CCACHE}${CC_PREFIX}-gcc ${CFLAGS} -o ${STAGEDIR}/usr/bin/fbtest fbtest/fbtest.c
-echo "file /usr/bin/fbtest ${STAGEDIR}/usr/bin/fbtest 755 0 0" >> filelist-tmp.txt
 
 # Extra stuff per platform
 case $1 in
