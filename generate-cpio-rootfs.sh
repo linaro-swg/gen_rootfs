@@ -97,6 +97,21 @@ case $1 in
         echo "HiKey" > etc/hostname
         ;;
 
+    "mt8173-evb")
+        echo "Building MT8173 EVB AArch64 root filesystem"
+        if [ ! -n "${CC_DIR}" ]; then
+            echo "CC_DIR must be set as environment variable before calling this script"
+            exit 1
+        fi
+        export ARCH=arm64
+
+        CC_PREFIX=aarch64-linux-gnu
+        LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+
+        cp etc/inittab-mt8173 etc/inittab
+        echo "MT8173_EVB" > etc/hostname
+        ;;
+
     *)
         echo "Usage: $0 [versatile|vexpress|fvp-aarch64]"
         exit 1
@@ -271,6 +286,8 @@ case $1 in
     "fvp-aarch64")
         ;;
     "hikey")
+        ;;
+    "mt8173-evb")
         ;;
     *)
         echo "Forgot to update special per-platform rules."
