@@ -51,17 +51,21 @@ function clone_dir()
 case $1 in
     "vexpress")
         echo "Building Versatile Express root filesystem"
-        if [ ! -n "${CC_DIR}" ]; then
-            echo "CC_DIR must be set as environment variable before calling this script"
+        if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
+            echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
             exit 1
         fi
         export ARCH=arm
 
-        CC_DIR=${CC_DIR}
         CC_PREFIX=arm-linux-gnueabihf
-        CC_PREFIX=${CC_PREFIX}
         CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
-        LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+        if [ "${CROSS_COMPILE}" ] ; then
+            # This is somewhat hackish but works with Linaro's pre-build compilers,
+            # as well as with the standard arm-linux-gnueabihf-gcc command of Ubuntu 15.04
+            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
+        else
+            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+        fi
 
         cp etc/inittab-vexpress etc/inittab
         echo "Vexpress" > etc/hostname
@@ -119,29 +123,34 @@ case $1 in
 esac
 
 # Define more tools
-STRIP=${CC_PREFIX}-strip
+if [ "${CROSS_COMPILE}" ]; then
+    STRIP=${CROSS_COMPILE}strip
+else
+    STRIP=${CC_PREFIX}-strip
+    CROSS_COMPILE=${CC_PREFIX}-
+    echo "Set up cross compiler at: ${CC_DIR}"
+    export PATH="${CC_DIR}/bin:${PATH}"
+
+    echo -n "Check ccache ..."
+    which ccache > /dev/null ; if [ ! $? -eq 0 ] ; then
+        echo "No"
+    else
+        echo "Yes"
+        # Set $CCACHE to "ccache " only if unset
+        CCACHE=${CCACHE-ccache }
+    fi
+fi
 
 echo "OUTFILE = ${OUTFILE}"
 
 echo "Check prerequisites..."
-echo "Set up cross compiler at: ${CC_DIR}"
-export PATH="${CC_DIR}/bin:${PATH}"
 echo -n "Check crosscompiler ... "
-which ${CC_PREFIX}-gcc > /dev/null ; if [ ! $? -eq 0 ] ; then
-    echo "ERROR: cross-compiler ${CC_PREFIX}-gcc not in PATH=$PATH!"
+${CROSS_COMPILE}gcc --version > /dev/null ; if [ ! $? -eq 0 ] ; then
+    echo "ERROR: cross-compiler ${CROSS_COMPILE}gcc cannot be run!"
     echo "ABORTING."
     exit 1
 else
     echo "OK"
-fi
-
-echo -n "Check ccache ..."
-which ccache > /dev/null ; if [ ! $? -eq 0 ] ; then
-    echo "No"
-else
-    echo "Yes"
-    # Set $CCACHE to "ccache " only if unset
-    CCACHE=${CCACHE-ccache }
 fi
 
 echo -n "Check # of CPUs ..."
@@ -184,7 +193,7 @@ if [ ! -e ${BUILDDIR}/.config ]; then
   echo "Configuring cross compiler etc..."
   # Comment in this line to create a statically linked busybox
   #sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
-  sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CCACHE}${CC_PREFIX}-\"/g" ${BUILDDIR}/.config
+  sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CROSS_COMPILE}\"/g" ${BUILDDIR}/.config
   sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
   sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
   # Turn off "eject" command, we don't have a CDROM
