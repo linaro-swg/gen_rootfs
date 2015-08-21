@@ -58,7 +58,7 @@ case $1 in
         export ARCH=arm
 
         CC_PREFIX=arm-linux-gnueabihf
-        CFLAGS="-marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"
+        CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
         if [ "${CROSS_COMPILE}" ] ; then
             # This is somewhat hackish but works with Linaro's pre-build compilers,
             # as well as with the standard arm-linux-gnueabihf-gcc command of Ubuntu 15.04
