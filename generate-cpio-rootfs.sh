@@ -88,14 +88,32 @@ case $1 in
 
     "hikey")
         echo "Building HiKey AArch64 root filesystem"
-        if [ ! -n "${CC_DIR}" ]; then
-            echo "CC_DIR must be set as environment variable before calling this script"
+        if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
+            echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
             exit 1
         fi
-        export ARCH=arm64
 
-        CC_PREFIX=aarch64-linux-gnu
-        LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+        if [ "${CROSS_COMPILE}" ] ; then
+            CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
+            case "${CC_PREFIX}" in
+                aarch64-linux-gnu)
+                    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
+                    export ARCH=arm64
+                    ;;
+                arm-linux-gnueabihf)
+                    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
+                    export ARCH=arm
+                    ;;
+                *)
+                    echo "Unsupported arch"
+	            exit 1
+                    ;;
+            esac
+        else
+            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+            CC_PREFIX=aarch64-linux-gnu
+            export ARCH=arm64
+        fi
 
         cp etc/inittab-vexpress etc/inittab
         echo "HiKey" > etc/hostname
