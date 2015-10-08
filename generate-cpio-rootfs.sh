@@ -110,8 +110,8 @@ case $1 in
                     ;;
             esac
         else
-            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
             CC_PREFIX=aarch64-linux-gnu
+            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
             export ARCH=arm64
         fi
 
