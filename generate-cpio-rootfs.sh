@@ -115,7 +115,7 @@ case $1 in
             export ARCH=arm64
         fi
 
-        cp etc/inittab-vexpress etc/inittab
+        cp etc/inittab-hikey etc/inittab
         echo "HiKey" > etc/hostname
         ;;
 
