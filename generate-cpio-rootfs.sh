@@ -6,6 +6,9 @@
 #
 # All credits to Linus Walleij that wrote this initially.
 
+# exit as soon as an error is encoutered
+set -e
+
 echo "Generator for a simple initramfs root filesystem for some ARM targets"
 CURDIR="$(dirname "$(readlink -f "$0")")"
 STAGEDIR=${CURDIR}/stage
