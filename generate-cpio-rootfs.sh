@@ -214,7 +214,7 @@ if [ ! -e ${BUILDDIR}/.config ]; then
   echo "Configuring cross compiler etc..."
   # Comment in this line to create a statically linked busybox
   #sed -i "s/^#.*CONFIG_STATIC.*/CONFIG_STATIC=y/" ${BUILDDIR}/.config
-  sed -i -e "s/CONFIG_CROSS_COMPILER_PREFIX=\"\"/CONFIG_CROSS_COMPILER_PREFIX=\"${CROSS_COMPILE}\"/g" ${BUILDDIR}/.config
+  sed -i -e "s|CONFIG_CROSS_COMPILER_PREFIX=\"\"|CONFIG_CROSS_COMPILER_PREFIX=\"${CROSS_COMPILE}\"|g" ${BUILDDIR}/.config
   sed -i -e "s/CONFIG_EXTRA_CFLAGS=\"\"/CONFIG_EXTRA_CFLAGS=\"${CFLAGS}\"/g" ${BUILDDIR}/.config
   sed -i -e "s/CONFIG_PREFIX=\".*\"/CONFIG_PREFIX=\"..\/stage\"/g" ${BUILDDIR}/.config
   # Turn off "eject" command, we don't have a CDROM
