@@ -152,14 +152,8 @@ else
     echo "Set up cross compiler at: ${CC_DIR}"
     export PATH="${CC_DIR}/bin:${PATH}"
 
-    echo -n "Check ccache ..."
-    which ccache > /dev/null ; if [ ! $? -eq 0 ] ; then
-        echo "No"
-    else
-        echo "Yes"
-        # Set $CCACHE to "ccache " only if unset
-        CCACHE=${CCACHE-ccache }
-    fi
+    # Set $CCACHE to "ccache " only if unset and ccache is installed
+    which ccache > /dev/null && CCACHE=${CCACHE-ccache } || true
 fi
 
 echo "OUTFILE = ${OUTFILE}"
