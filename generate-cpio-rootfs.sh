@@ -51,94 +51,66 @@ function clone_dir()
     cd ${CURDIR}
 }
 
+if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
+    echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
+    exit 1
+fi
+
+if [ "${CROSS_COMPILE}" ] ; then
+    CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
+    case "${CC_PREFIX}" in
+        aarch64-linux-gnu)
+            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
+            export ARCH=arm64
+            ;;
+        arm-linux-gnueabihf)
+            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
+            export ARCH=arm
+            ;;
+        *)
+            echo "Unsupported arch"
+            exit 1
+            ;;
+    esac
+else
+    # Default in 64bits compilation when CROSS_COMPILE is not defined
+    CC_PREFIX=aarch64-linux-gnu
+    LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+    export ARCH=arm64
+fi
+
 case $1 in
     "vexpress")
-        echo "Building Versatile Express root filesystem"
-        if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
-            echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
+        if [ "${CROSS_COMPILE}" ] ; then
+            echo "Building Versatile Express root filesystem"
+        else
+            echo "vexpress requires the definition of CROSS_COMPILE to compile in 32bits"
             exit 1
         fi
-        export ARCH=arm
-
-        CC_PREFIX=arm-linux-gnueabihf
         CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
-        if [ "${CROSS_COMPILE}" ] ; then
-            # This is somewhat hackish but works with Linaro's pre-build compilers,
-            # as well as with the standard arm-linux-gnueabihf-gcc command of Ubuntu 15.04
-            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
-        else
-            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-        fi
-
         cp etc/inittab-vexpress etc/inittab
         echo "Vexpress" > etc/hostname
         ;;
 
-    "fvp-aarch64")
-        echo "Building FVP AArch64 root filesystem"
-        if [ ! -n "${CC_DIR}" ]; then
-            echo "CC_DIR must be set as environment variable before calling this script"
-            exit 1
-        fi
-        export ARCH=arm64
-
-        CC_PREFIX=aarch64-linux-gnu
-        LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-
+    "fvp")
+        echo "Building FVP root filesystem"
         cp etc/inittab-vexpress etc/inittab
         echo "FVP" > etc/hostname
         ;;
 
     "hikey")
-        echo "Building HiKey AArch64 root filesystem"
-        if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
-            echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
-            exit 1
-        fi
-
-        if [ "${CROSS_COMPILE}" ] ; then
-            CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
-            case "${CC_PREFIX}" in
-                aarch64-linux-gnu)
-                    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
-                    export ARCH=arm64
-                    ;;
-                arm-linux-gnueabihf)
-                    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
-                    export ARCH=arm
-                    ;;
-                *)
-                    echo "Unsupported arch"
-	            exit 1
-                    ;;
-            esac
-        else
-            CC_PREFIX=aarch64-linux-gnu
-            LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-            export ARCH=arm64
-        fi
-
+        echo "Building HiKey root filesystem"
         cp etc/inittab-hikey etc/inittab
         echo "HiKey" > etc/hostname
         ;;
 
     "mt8173-evb")
-        echo "Building MT8173 EVB AArch64 root filesystem"
-        if [ ! -n "${CC_DIR}" ]; then
-            echo "CC_DIR must be set as environment variable before calling this script"
-            exit 1
-        fi
-        export ARCH=arm64
-
-        CC_PREFIX=aarch64-linux-gnu
-        LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
-
         cp etc/inittab-mt8173 etc/inittab
         echo "MT8173_EVB" > etc/hostname
         ;;
 
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp-aarch64]"
+        echo "Usage: $0 [versatile|vexpress|fvp|hikey|mt8173-evb]"
         exit 1
         ;;
 esac
@@ -307,7 +279,7 @@ done;
 case $1 in
     "vexpress")
         ;;
-    "fvp-aarch64")
+    "fvp")
         ;;
     "hikey")
         ;;
