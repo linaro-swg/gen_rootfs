@@ -51,42 +51,24 @@ function clone_dir()
     cd ${CURDIR}
 }
 
-if [ -z "${CROSS_COMPILE}${CC_DIR}" ]; then
-    echo "CROSS_COMPILE or CC_DIR must be set as environment variable before calling this script"
-    exit 1
-fi
-
-if [ "${CROSS_COMPILE}" ] ; then
-    CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
-    case "${CC_PREFIX}" in
-        aarch64-linux-gnu)
-            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
-            export ARCH=arm64
-            ;;
-        arm-linux-gnueabihf)
-            LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
-            export ARCH=arm
-            ;;
-        *)
-            echo "Unsupported arch"
-            exit 1
-            ;;
-    esac
-else
-    # Default in 64bits compilation when CROSS_COMPILE is not defined
-    CC_PREFIX=aarch64-linux-gnu
-    LIBCBASE=${CC_DIR}/${CC_PREFIX}/libc
+CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
+case "${CC_PREFIX}" in
+aarch64-linux-gnu)
+    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
     export ARCH=arm64
-fi
+    ;;
+arm-linux-gnueabihf)
+    LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-armhf.so.3))/..
+    export ARCH=arm
+    ;;
+*)
+    echo "Unsupported arch"
+    exit 1
+    ;;
+esac
 
 case $1 in
     "vexpress")
-        if [ "${CROSS_COMPILE}" ] ; then
-            echo "Building Versatile Express root filesystem"
-        else
-            echo "vexpress requires the definition of CROSS_COMPILE to compile in 32bits"
-            exit 1
-        fi
         CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
         cp etc/inittab-vexpress etc/inittab
         echo "Vexpress" > etc/hostname
@@ -116,17 +98,7 @@ case $1 in
 esac
 
 # Define more tools
-if [ "${CROSS_COMPILE}" ]; then
-    STRIP=${CROSS_COMPILE}strip
-else
-    STRIP=${CC_PREFIX}-strip
-    CROSS_COMPILE=${CC_PREFIX}-
-    echo "Set up cross compiler at: ${CC_DIR}"
-    export PATH="${CC_DIR}/bin:${PATH}"
-
-    # Set $CCACHE to "ccache " only if unset and ccache is installed
-    which ccache > /dev/null && CCACHE=${CCACHE-ccache } || true
-fi
+STRIP=${CROSS_COMPILE}strip
 
 echo "OUTFILE = ${OUTFILE}"
 
