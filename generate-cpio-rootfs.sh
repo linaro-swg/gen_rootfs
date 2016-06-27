@@ -189,7 +189,7 @@ for file in ${SBINFILES} ; do
     echo "file /sbin/${BASE} $file 755 0 0" >> filelist-tmp.txt
 done;
 
-LIBFILES=`find ${STAGEDIR}/lib -maxdepth 1 -type f`
+LIBFILES=`find ${STAGEDIR}/lib -maxdepth 1 -type f -a -not -name "*.a"`
 for file in ${LIBFILES} ; do
     BASE=`basename $file`
     echo "file /lib/${BASE} $file 755 0 0" >> filelist-tmp.txt
