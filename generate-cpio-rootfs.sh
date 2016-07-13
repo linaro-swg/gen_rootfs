@@ -80,7 +80,13 @@ case $1 in
         echo "FVP" > etc/hostname
         ;;
 
-    "hikey")
+    "rpi3")
+        echo "Building RPi3 root filesystem"
+        cp etc/inittab-rpi3 etc/inittab
+        echo "RPi3" > etc/hostname
+        ;;
+
+     "hikey")
         echo "Building HiKey root filesystem"
         cp etc/inittab-hikey etc/inittab
         echo "HiKey" > etc/hostname
@@ -92,7 +98,7 @@ case $1 in
         ;;
 
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp|hikey|mt8173-evb]"
+        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb]"
         exit 1
         ;;
 esac
@@ -253,7 +259,9 @@ case $1 in
         ;;
     "fvp")
         ;;
-    "hikey")
+    "rpi3")
+        ;;
+     "hikey")
         ;;
     "mt8173-evb")
         ;;
