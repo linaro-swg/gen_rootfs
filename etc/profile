@@ -15,3 +15,4 @@ if [ -e "/etc/profile.local" ]; then
 fi
 
 alias ll='ls -al'
+alias mount_shared='mount -t 9p -o trans=virtio host'
