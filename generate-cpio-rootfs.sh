@@ -97,8 +97,14 @@ case $1 in
         echo "MT8173_EVB" > etc/hostname
         ;;
 
+    "dra7xx")
+        echo "Building DRA7xx root filesystem"
+        cp etc/inittab-dra7xx etc/inittab
+        echo "DRA7xx" > etc/hostname
+        ;;
+
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb]"
+        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb|dra7xx]"
         exit 1
         ;;
 esac
@@ -267,6 +273,8 @@ case $1 in
      "hikey")
         ;;
     "mt8173-evb")
+        ;;
+    "dra7xx")
         ;;
     *)
         echo "Forgot to update special per-platform rules."
