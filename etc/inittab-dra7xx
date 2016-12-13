@@ -1,0 +1,10 @@
+#
+# /etc/inittab
+#
+::sysinit:/etc/init.d/rc.init
+# DRA7xx-EVM defaults to UART3 but can also use UART0
+ttyS0::askfirst:/bin/sh -sc ". /etc/profile"
+ttyS3::askfirst:/bin/sh -sc ". /etc/profile"
+::ctrlaltdel:/sbin/poweroff
+::shutdown:/etc/init.d/rc.shutdown
+::restart:/sbin/init
