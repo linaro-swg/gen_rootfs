@@ -156,6 +156,7 @@ mkdir -p ${STAGEDIR}
 mkdir -p ${STAGEDIR}/lib
 mkdir -p ${STAGEDIR}/sbin
 mkdir -p ${BUILDDIR}
+mkdir -p ${STAGEDIR}/etc/udhcp
 
 # For using the git version
 cd ${BUSYBOXDIR}
@@ -174,6 +175,10 @@ if [ ! -e ${BUILDDIR}/.config ]; then
 fi
 make -j${_NPROCESSORS_ONLN} O=${BUILDDIR}
 make O=${BUILDDIR} install
+
+# copy udhcp simple script to the stage
+cp ${BUSYBOXDIR}/examples/udhcp/simple.script ${STAGEDIR}/etc/udhcp/
+
 cd ${CURDIR}
 
 # First the flat library where arch-independent stuff will

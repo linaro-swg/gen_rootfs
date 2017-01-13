@@ -23,6 +23,7 @@ file /etc/init.d/rc.init etc/init.d/rc.init 755 0 0
 file /etc/init.d/telnetd etc/init.d/telnetd 755 0 0
 file /etc/init.d/splash etc/init.d/splash 755 0 0
 file /etc/init.d/ledflash etc/init.d/ledflash 755 0 0
+file /etc/init.d/udhcpc etc/init.d/udhcpc 755 0 0
 file /etc/rpc etc/rpc 644 0 0
 file /etc/se.kmap etc/se.kmap 644 0 0
 dir /etc/rc.d 755 0 0
@@ -48,6 +49,8 @@ file /etc/gshadow etc/gshadow 644 0 0
 file /etc/fstab etc/fstab 644 0 0
 file /etc/hosts etc/hosts 644 0 0
 slink /etc/mtab /proc/mounts 755 0 0
+dir /etc/udhcp 755 0 0
+file /etc/udhcp/simple.script stage/etc/udhcp/simple.script 755 0 0
 dir /proc 755 0 0
 dir /sys 755 0 0
 dir /mnt 755 0 0
