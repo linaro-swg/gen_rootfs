@@ -209,7 +209,8 @@ done;
 LIBFILES=`find ${STAGEDIR}/lib -maxdepth 1 -type f -a -not -name "*.a" \
 	-a -not -name "libstdc++*" -a -not -name "libasan*" \
 	-a -not -name "libubsan*" -a -not -name "libgfortran*" \
-	-a -not -name "libnss_nis*"`
+	-a -not -name "libnss_nis*" -a -not -name "liblsan*" \
+	-a -not -name "libtsan*" -a -not -name "libitm*"`
 for file in ${LIBFILES} ; do
     BASE=`basename $file`
     echo "file /lib/${BASE} $file 755 0 0" >> filelist-tmp.txt
