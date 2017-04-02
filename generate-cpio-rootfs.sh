@@ -103,8 +103,14 @@ case $1 in
         echo "DRA7xx" > etc/hostname
         ;;
 
+    "am43xx")
+        echo "Building AM43xx root filesystem"
+        cp etc/inittab-am43xx etc/inittab
+        echo "AM43xx" > etc/hostname
+        ;;
+
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb|dra7xx]"
+        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb|dra7xx|am43xx]"
         exit 1
         ;;
 esac
@@ -281,6 +287,8 @@ case $1 in
     "mt8173-evb")
         ;;
     "dra7xx")
+        ;;
+    "am43xx")
         ;;
     *)
         echo "Forgot to update special per-platform rules."
