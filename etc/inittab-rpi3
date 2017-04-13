@@ -4,6 +4,7 @@
 ::sysinit:/etc/init.d/rc.init
 # ttyS0 used by RPi3
 ttyS0::askfirst:/bin/sh -sc ". /etc/profile"
+tty0::askfirst:/bin/sh -sc ". /etc/profile"
 ::ctrlaltdel:/sbin/poweroff
 ::shutdown:/etc/init.d/rc.shutdown
 ::restart:/sbin/init
