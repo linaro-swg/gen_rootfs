@@ -67,6 +67,13 @@ arm-linux-gnueabihf)
     ;;
 esac
 
+function generate_inittab()
+{
+	# Expand variables ${...} taking value from the environment
+	# http://superuser.com/a/302847
+	cat $1 | awk '{while(match($0,"[$]{[^}]*}")) {var=substr($0,RSTART+2,RLENGTH -3);gsub("[$]{"var"}",ENVIRON[var])}}1'>$2
+}
+
 case $1 in
     "vexpress")
         CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
@@ -88,7 +95,8 @@ case $1 in
 
      "hikey")
         echo "Building HiKey root filesystem"
-        cp etc/inittab-hikey etc/inittab
+        export CFG_NW_CONSOLE_UART=${CFG_NW_CONSOLE_UART:-3}
+        generate_inittab etc/inittab-hikey etc/inittab
         echo "HiKey" > etc/hostname
         ;;
 
