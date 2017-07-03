@@ -100,6 +100,13 @@ case $1 in
         echo "HiKey" > etc/hostname
         ;;
 
+    "hikey960")
+        echo "Building HiKey960 root filesystem"
+        export CFG_CONSOLE_UART=${CFG_CONSOLE_UART:-6}
+        generate_inittab etc/inittab-hikey960 etc/inittab
+        echo "HiKey960" > etc/hostname
+        ;;
+
     "mt8173-evb")
         cp etc/inittab-mt8173 etc/inittab
         echo "MT8173_EVB" > etc/hostname
@@ -118,7 +125,7 @@ case $1 in
         ;;
 
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|mt8173-evb|dra7xx|am43xx]"
+        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|hikey960|mt8173-evb|dra7xx|am43xx]"
         exit 1
         ;;
 esac
