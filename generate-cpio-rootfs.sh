@@ -93,7 +93,7 @@ case $1 in
         echo "RPi3" > etc/hostname
         ;;
 
-     "hikey")
+    "hikey")
         echo "Building HiKey root filesystem"
         export CFG_NW_CONSOLE_UART=${CFG_NW_CONSOLE_UART:-3}
         generate_inittab etc/inittab-hikey etc/inittab
