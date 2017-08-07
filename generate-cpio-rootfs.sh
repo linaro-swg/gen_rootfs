@@ -282,28 +282,6 @@ for file in ${LINKSUSRSBIN} ; do
     echo "slink /sbin/${BASE} ${TARGET} 755 0 0" >> filelist-tmp.txt
 done;
 
-# Extra stuff per platform
-case $1 in
-    "vexpress")
-        ;;
-    "fvp")
-        ;;
-    "rpi3")
-        ;;
-     "hikey")
-        ;;
-    "mt8173-evb")
-        ;;
-    "dra7xx")
-        ;;
-    "am43xx")
-        ;;
-    *)
-        echo "Forgot to update special per-platform rules."
-        exit 1
-        ;;
-esac
-
 diff filelist-final.txt filelist-tmp.txt >/dev/null 2>&1 || mv filelist-tmp.txt filelist-final.txt
 
 if [ "$2" != "nocpio" ]; then
