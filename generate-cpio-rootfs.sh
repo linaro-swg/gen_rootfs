@@ -93,6 +93,12 @@ case $1 in
         echo "RPi3" > etc/hostname
         ;;
 
+    "poplar")
+        echo "Building Poplar root filesystem"
+        cp etc/inittab-poplar etc/inittab
+        echo "poplar" > etc/hostname
+        ;;
+
     "hikey")
         echo "Building HiKey root filesystem"
         export CFG_NW_CONSOLE_UART=${CFG_NW_CONSOLE_UART:-3}
@@ -125,7 +131,7 @@ case $1 in
         ;;
 
     *)
-        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|hikey|hikey960|mt8173-evb|dra7xx|am43xx]"
+        echo "Usage: $0 [versatile|vexpress|fvp|rpi3|poplar|hikey|hikey960|mt8173-evb|dra7xx|am43xx]"
         exit 1
         ;;
 esac
