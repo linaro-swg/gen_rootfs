@@ -76,7 +76,6 @@ function generate_inittab()
 
 case $1 in
     "vexpress")
-        CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
         cp etc/inittab-vexpress etc/inittab
         echo "Vexpress" > etc/hostname
         ;;
